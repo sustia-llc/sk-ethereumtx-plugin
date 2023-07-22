@@ -1,30 +1,15 @@
-# Semantic Kernel ChatGPT plugin starter
+# Semantic Kernel ChatGPT plugin for Etherscan Txs
 
-This project provides starter code to create a ChatGPT plugin. It includes the following components:
+This project implements a ChatGPT plugin for Etherscan. It includes the following components:
 - An endpoint that serves up an ai-plugin.json file for ChatGPT to discover the plugin
 - A generator that automatically converts prompts into semantic function endpoints
-- The ability to add additional native functions as endpoints to the plugin
-
-To learn more about using this starter, see the Semantic Kernel documentation that describes how to [create a ChatGPT plugin](https://learn.microsoft.com/en-us/semantic-kernel/ai-orchestration/chatgpt-plugins).
+- One native function that calls the Etherscan API endpoint
 
 ## Prerequisites
 
-- [.NET 6](https://dotnet.microsoft.com/download/dotnet/6.0) is required to run this starter.
-- [Azure Functions Core Tools](https://www.npmjs.com/package/azure-functions-core-tools) is required to run this starter.
-- Install the recommended extensions
-  - [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
-  - [Semantic Kernel Tools](https://marketplace.visualstudio.com/items?itemName=ms-semantic-kernel.semantic-kernel)
-
-## Configuring the starter
-
-To configure the starter, you need to provide the following information:
-
-- Define the properties of the plugin in the [appsettings.json](./azure-function/appsettings.json) file.
-- Enter the API key for your AI endpoint in the [local.settings.json](./azure-function/local.settings.json) file.
-- Enter the API key for your Etherscan API endpoint in the [local.settings.json](./azure-function/local.settings.json) file.
-
-For Debugging the console application alone, we suggest using .NET [Secret Manager](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) to avoid the risk of leaking secrets into the repository, branches and pull requests.
-
+- Install `Docker` and VS Code `Dev Containers` extension.
+- Clone project and run `Dev-Containers: Reopen in Container` command
+  - The dev container will download and install the .NET 6 image and install the `C#`, `Semantic Kernel Tools`, and `GitHub Copilot` extensions.
 
 ### Using appsettings.json
 
@@ -44,6 +29,7 @@ Configure an Azure OpenAI endpoint
 
 1. Copy [local.settings.json.example](./azure-function/local.settings.json.example) to `./azure-function/local.settings.json`
 1. Edit the `Values` object to add your OpenAI endpoint configuration in the `apiKey` property
+1. Edit the `Values` object to add your Etherscan API endpoint configuration in the `etherscanApiKey` property
 
 ## Running the starter
 
@@ -56,3 +42,8 @@ cd azure-function
 dotnet build
 func start --csharp
 ```
+
+## Learn More
+
+To learn more, see the Semantic Kernel documentation that describes how to [create a ChatGPT plugin](https://learn.microsoft.com/en-us/semantic-kernel/ai-orchestration/chatgpt-plugins).
+
