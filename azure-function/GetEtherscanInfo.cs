@@ -4,7 +4,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-
+using Newtonsoft.Json.Linq;
 
 namespace Plugins.EtherscanPlugin
 {
@@ -51,7 +51,23 @@ namespace Plugins.EtherscanPlugin
                 } else {
                     HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
                     response.Headers.Add("Content-Type", "application/json");
-                    response.WriteString(txList);
+                    // parse txList into json object
+                    JObject txListObj = JObject.Parse(txList);
+
+                    // create a new JObject, and add the result from txListObj
+                    JObject txListObjResult = new JObject();
+                    txListObjResult["result"] = new JArray(txListObj["result"].Select(r => new JObject(
+                        new JProperty("blockNumber", r["blockNumber"]),
+                        new JProperty("timeStamp", r["timeStamp"]),
+                        new JProperty("transactionIndex", r["transactionIndex"]),
+                        new JProperty("from", r["from"]),
+                        new JProperty("to", r["to"]),
+                        new JProperty("value", r["value"]),
+                        new JProperty("gas", r["gas"]),
+                        new JProperty("gasPrice", r["gasPrice"])
+                    )));
+                    _logger.LogInformation("txList: " + txListObjResult["result"].ToString());
+                    response.WriteString(txListObjResult["result"].ToString());
 
                     return response;
                 }
