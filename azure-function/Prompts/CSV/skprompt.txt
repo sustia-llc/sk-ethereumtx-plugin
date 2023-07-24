@@ -1,0 +1,15 @@
+Create a CSV formatted file from this JSON list of transactions:
+```json
+{{$input}}
+```
+
+Using this format:
+Date,Description,Amount,Price,Value\n
+[[transactions.length > 0 ? 
+  transactions.map(function(transaction) { 
+    return transaction.date + ",\"Transaction Fee\"," + BigInt(gas) * (BigInt(gasPrice)/1e18) + "," + ethPrice + "," + (BigInt(gas) * BigInt(gasPrice) * BigInt(ethPrice)) + "\n; 
+  }).join('\n') : 
+  '' 
+]]
+
+Here is the CSV formatted file of your last two Ethereum transactions:

@@ -1,0 +1,22 @@
+{
+    "schema": 1,
+    "type": "completion",
+    "description": "create a CSV of Etherscan Txs",
+    "completion": {
+        "max_tokens": 256,
+        "temperature": 0,
+        "top_p": 0,
+        "presence_penalty": 0,
+        "frequency_penalty": 0
+    },
+    "input": {
+        "parameters": [
+            {
+                "name": "input",
+                "description": "JSON of Etherscan Txs",
+                "defaultValue": ""
+            }
+        ]
+    },
+    "default_backends": []
+}
