@@ -1,15 +1,17 @@
-# Semantic Kernel ChatGPT plugin for Etherscan Txs
+# Semantic Kernel ChatGPT plugin for Ethereum Txs
 
-This project implements a ChatGPT plugin for Etherscan. It includes the following components:
+This project implements a ChatGPT plugin for Ethereum. It includes the following components:
 - An endpoint that serves up an ai-plugin.json file for ChatGPT to discover the plugin
 - A generator that automatically converts prompts into semantic function endpoints
-- One native function that calls the Etherscan API endpoint
+- One native function that calls the Etherscan API endpoint for transaction information, and a CoinGecko API endpoint to get the historical price of Ethereum
+- Two semantic functions that formats the JSON response into CSV or OFX formats
 
 ## Prerequisites
 
 - Install `Docker` and VS Code `Dev Containers` extension.
 - Clone project and run `Dev-Containers: Reopen in Container` command
   - The dev container will download and install the .NET 6 image and install the `C#`, `Semantic Kernel Tools`, and `GitHub Copilot` extensions.
+- [Create a free Etherscan Account](https://docs.etherscan.io/getting-started/creating-an-account) and [get an API key](https://docs.etherscan.io/getting-started/viewing-api-usage-statistics)
 
 ### Using appsettings.json
 

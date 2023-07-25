@@ -5,8 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using Models;
 
 const string DefaultSemanticFunctionsFolder = "Prompts";
@@ -39,18 +37,18 @@ var host = new HostBuilder()
                 return kernel;
             })
             .AddScoped<IAIPluginRunner, AIPluginRunner>()
-            .AddScoped<IEtherscanSettings>((providers) =>
+            .AddScoped<IEthereumSettings>((providers) =>
             {
                 // Get the app settings
                 var appSettings = AppSettings.LoadSettings();
 
-                // Create the EtherscanSettings
-                IEtherscanSettings etherscanSettings = new EtherscanSettings
+                // Create the EthereumSettings
+                IEthereumSettings ethereumSettings = new EthereumSettings
                 {
                     EtherscanApiKey = appSettings.Kernel.EtherscanApiKey
                 };
 
-                return etherscanSettings;
+                return ethereumSettings;
             });
     })
     .Build();

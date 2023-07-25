@@ -6,42 +6,39 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Linq;
 
-namespace Plugins.EtherscanPlugin
+namespace Plugins.EthereumPlugin
 {
-    public class GetEtherscanData
+    public class GetEthereumTxs
     {
         private static readonly HttpClient client = new HttpClient();
-        private readonly IEtherscanSettings _etherscanSettings;
-        private readonly ILogger<GetEtherscanData> _logger;
+        private readonly IEthereumSettings _ethereumSettings;
+        private readonly ILogger<GetEthereumTxs> _logger;
         private List<string> currencies = new List<string> { "aed", "ars", "aud", "bch", "bdt", "bhd", "bmd", "bnb", "brl", "btc", "cad", "chf", "clp", "cny", "czk", "dkk", "dot", "eos", "eth", "eur", "gbp", "hkd", "huf", "idr", "ils", "inr", "jpy", "krw", "kwd", "lkr", "ltc", "mmk", "mxn", "myr", "ngn", "nok", "nzd", "php", "pkr", "pln", "rub", "sar", "sek", "sgd", "thb", "try", "twd", "uah", "usd", "vef", "vnd", "xag", "xau", "xdr", "xlm", "xrp", "yfi", "zar", "bits", "link", "sats" };
         private readonly string EndpointURL;
         private readonly string EndpointTxListURL;
         private readonly string EndpointETHDailyPriceURL;
 
-        public GetEtherscanData(IEtherscanSettings etherscanSettings, ILoggerFactory loggerFactory)
+        public GetEthereumTxs(IEthereumSettings ethereumSettings, ILoggerFactory loggerFactory)
         {
-            this._etherscanSettings = etherscanSettings;
-            _logger = loggerFactory.CreateLogger<GetEtherscanData>();
+            this._ethereumSettings = ethereumSettings;
+            _logger = loggerFactory.CreateLogger<GetEthereumTxs>();
 
             EndpointURL = "https://api.etherscan.io/";
-            // pull the last two transactions defined by offset
-            EndpointTxListURL = EndpointURL + "api?module=account&action=txlist&page=1&offset=2&sort=desc&address={address}&apikey=" + etherscanSettings.EtherscanApiKey;
+            // pull the last two transactions defined by offset value
+            EndpointTxListURL = EndpointURL + "api?module=account&action=txlist&page=1&offset=2&sort=desc&address={address}&apikey=" + ethereumSettings.EtherscanApiKey;
             EndpointETHDailyPriceURL = "https://api.coingecko.com/api/v3/coins/ethereum/history?date={date}&localization=false";
         }
 
         [OpenApiOperation(operationId: "GetTxList", tags: new[] { "ExecuteFunction" }, Description = "Get a list of transactions by wallet address")]
-        [OpenApiParameter(name: "walletAddr", Description = "Etherscan Wallet Address", Required = true, In = ParameterLocation.Query)]
-        [OpenApiParameter(name: "currency", Description = "A currency from the following list. If no currency is specified, the default will be usd: aed,ars,aud,bch,bdt,bhd,bmd,bnb,brl,btc,cad,chf,clp,cny,czk,dkk,dot,eos,eth,eur,gbp,hkd,huf,idr,ils,inr,jpy,krw,kwd,lkr,ltc,mmk,mxn,myr,ngn,nok,nzd,php,pkr,pln,rub,sar,sek,sgd,thb,try,twd,uah,usd,vef,vnd,xag,xau,xdr,xlm,xrp,yfi,zar,bits,link,sats", Required = true, In = ParameterLocation.Query)]
+        [OpenApiParameter(name: "walletAddr", Description = "Ethereum Wallet Address", Required = true, In = ParameterLocation.Query)]
+        [OpenApiParameter(name: "currency", Description = "A currency from the following list. If no currency is specified, pass in usd as a default: aed,ars,aud,bch,bdt,bhd,bmd,bnb,brl,btc,cad,chf,clp,cny,czk,dkk,dot,eos,eth,eur,gbp,hkd,huf,idr,ils,inr,jpy,krw,kwd,lkr,ltc,mmk,mxn,myr,ngn,nok,nzd,php,pkr,pln,rub,sar,sek,sgd,thb,try,twd,uah,usd,vef,vnd,xag,xau,xdr,xlm,xrp,yfi,zar,bits,link,sats", Required = true, In = ParameterLocation.Query)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The list of transactions by wallet address")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Description = "Returns the error of the input.")]
         [Function("GetTxList")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-            string walletAddr = req.Query["walletAddr"];
-
-            string currency = req.Query["currency"];
-
-            if (!currencies.Contains(currency)) {
+            string currency = req.Query["currency"]?.ToString() ?? string.Empty;
+            if (string.IsNullOrEmpty(currency) || !currencies.Contains(currency)) {
                 HttpResponseData responseCurrencyNotFound = req.CreateResponse(HttpStatusCode.BadRequest);
                 responseCurrencyNotFound.Headers.Add("Content-Type", "application/json");
                 //
@@ -51,8 +48,9 @@ namespace Plugins.EtherscanPlugin
                 return responseCurrencyNotFound;
             }
 
-            if (!string.IsNullOrEmpty(walletAddr))
+            if (req.Query.AllKeys.Contains("walletAddr") && !string.IsNullOrEmpty(req.Query["walletAddr"]))
             {
+                string walletAddr = req.Query["walletAddr"]?.ToString() ?? string.Empty;
                 string txListURL = EndpointTxListURL.Replace("{address}", walletAddr.ToString());
                 string txList = client.GetStringAsync(txListURL).Result;
 

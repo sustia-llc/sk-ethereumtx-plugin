@@ -1,7 +1,7 @@
 {
     "schema": 1,
     "type": "completion",
-    "description": "create a CSV of Etherscan Txs",
+    "description": "create a CSV of Ethereum Txs",
     "completion": {
         "max_tokens": 256,
         "temperature": 0,
@@ -13,7 +13,7 @@
         "parameters": [
             {
                 "name": "input",
-                "description": "JSON of Etherscan Txs",
+                "description": "JSON of Ethereum Txs",
                 "defaultValue": ""
             }
         ]

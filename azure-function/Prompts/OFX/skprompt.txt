@@ -33,7 +33,7 @@ NEWFILEUID:NONE\n\n
         <SEVERITY>INFO\n
       </STATUS>\n
       <STMTRS>\n
-        <CURDEF>USD\n
+        <CURDEF>ETH\n
         <BANKACCTFROM>\n
           <BANKID>Ethereum\n
           <ACCTID>WalletAddress\n
