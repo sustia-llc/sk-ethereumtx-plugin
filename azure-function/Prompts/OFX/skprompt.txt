@@ -5,6 +5,7 @@ Create an OFX formatted file from this JSON list of transactions:
 ```
 
 Using this format:
+```ofx
 OFXHEADER:100\n
 DATA:OFXSGML\n
 VERSION:102\n

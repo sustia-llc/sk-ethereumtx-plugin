@@ -37,7 +37,7 @@ namespace Plugins.EthereumPlugin
         [Function("GetTxList")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-            string currency = req.Query["currency"]?.ToString() ?? string.Empty;
+            string currency = req.Query["currency"]?.ToString().ToLower() ?? string.Empty;
             if (string.IsNullOrEmpty(currency) || !currencies.Contains(currency)) {
                 HttpResponseData responseCurrencyNotFound = req.CreateResponse(HttpStatusCode.BadRequest);
                 responseCurrencyNotFound.Headers.Add("Content-Type", "application/json");

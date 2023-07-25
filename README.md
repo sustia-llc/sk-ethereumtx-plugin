@@ -4,7 +4,12 @@ This project implements a ChatGPT plugin for Ethereum. It includes the following
 - An endpoint that serves up an ai-plugin.json file for ChatGPT to discover the plugin
 - A generator that automatically converts prompts into semantic function endpoints
 - One native function that calls the Etherscan API endpoint for transaction information, and a CoinGecko API endpoint to get the historical price of Ethereum
-- Two semantic functions that formats the JSON response into CSV or OFX formats
+- Two semantic functions that formats the JSON response into CSV or OFX formats for import into accounting software
+
+
+## Example Output
+
+![Example Output](./images/sampleoutput.png)
 
 ## Prerequisites
 
@@ -33,7 +38,7 @@ Configure an Azure OpenAI endpoint
 1. Edit the `Values` object to add your OpenAI endpoint configuration in the `apiKey` property
 1. Edit the `Values` object to add your Etherscan API endpoint configuration in the `etherscanApiKey` property
 
-## Running the starter
+## Running the endpoint
 
 To run the Azure Functions application just hit `F5`.
 
@@ -44,6 +49,8 @@ cd azure-function
 dotnet build
 func start --csharp
 ```
+
+Test the endpoint with the [Swagger UI](http://localhost:7071/swagger/ui)
 
 ## Learn More
 
