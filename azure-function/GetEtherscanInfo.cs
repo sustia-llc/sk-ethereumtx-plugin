@@ -13,7 +13,7 @@ namespace Plugins.EtherscanPlugin
         private static readonly HttpClient client = new HttpClient();
         private readonly IEtherscanSettings _etherscanSettings;
         private readonly ILogger<GetEtherscanData> _logger;
-
+        private List<string> currencies = new List<string> { "aed", "ars", "aud", "bch", "bdt", "bhd", "bmd", "bnb", "brl", "btc", "cad", "chf", "clp", "cny", "czk", "dkk", "dot", "eos", "eth", "eur", "gbp", "hkd", "huf", "idr", "ils", "inr", "jpy", "krw", "kwd", "lkr", "ltc", "mmk", "mxn", "myr", "ngn", "nok", "nzd", "php", "pkr", "pln", "rub", "sar", "sek", "sgd", "thb", "try", "twd", "uah", "usd", "vef", "vnd", "xag", "xau", "xdr", "xlm", "xrp", "yfi", "zar", "bits", "link", "sats" };
         private readonly string EndpointURL;
         private readonly string EndpointTxListURL;
         private readonly string EndpointETHDailyPriceURL;
@@ -31,12 +31,25 @@ namespace Plugins.EtherscanPlugin
 
         [OpenApiOperation(operationId: "GetTxList", tags: new[] { "ExecuteFunction" }, Description = "Get a list of transactions by wallet address")]
         [OpenApiParameter(name: "walletAddr", Description = "Etherscan Wallet Address", Required = true, In = ParameterLocation.Query)]
+        [OpenApiParameter(name: "currency", Description = "one of: aed,ars,aud,bch,bdt,bhd,bmd,bnb,brl,btc,cad,chf,clp,cny,czk,dkk,dot,eos,eth,eur,gbp,hkd,huf,idr,ils,inr,jpy,krw,kwd,lkr,ltc,mmk,mxn,myr,ngn,nok,nzd,php,pkr,pln,rub,sar,sek,sgd,thb,try,twd,uah,usd,vef,vnd,xag,xau,xdr,xlm,xrp,yfi,zar,bits,link,sats", Required = true, In = ParameterLocation.Query)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The list of transactions by wallet address")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Description = "Returns the error of the input.")]
         [Function("GetTxList")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
             string walletAddr = req.Query["walletAddr"];
+
+            string currency = req.Query["currency"];
+
+            if (!currencies.Contains(currency)) {
+                HttpResponseData responseCurrencyNotFound = req.CreateResponse(HttpStatusCode.BadRequest);
+                responseCurrencyNotFound.Headers.Add("Content-Type", "application/json");
+                //
+                string listOfCurrencies = string.Join(",", currencies);
+                responseCurrencyNotFound.WriteString("Please pass one of {listOfCurrencies} on the query string or in the request body".Replace("{listOfCurrencies}", listOfCurrencies));
+
+                return responseCurrencyNotFound;
+            }
 
             if (!string.IsNullOrEmpty(walletAddr))
             {
@@ -66,12 +79,16 @@ namespace Plugins.EtherscanPlugin
                         new JProperty("from", r["from"]),
                         new JProperty("to", r["to"]),
                         new JProperty("value", r["value"]),
-                        new JProperty("gas", r["gas"]),
+                        new JProperty("gas", r["gasUsed"]),
                         new JProperty("gasPrice", r["gasPrice"]),
-                        new JProperty("ethPrice", 1800)
+                        new JProperty("ethAmt", .0001),
+                        new JProperty("ethPriceInCurrency", 1800),
+                        new JProperty("currency", currency),
+                        new JProperty("currencyAmt", .18)
                     )));
 
                     // for each transaction, get the ETH price for that day using EndpointETHDailyPriceURL
+                    // NOTE: The daily price is the average, so not exactly what you see in the Etherscan UI
                     foreach (JObject tx in txListObjResult["result"])
                     {
                         string ethDailyPriceURL = EndpointETHDailyPriceURL.Replace("{date}", tx["date"].ToString());
@@ -82,13 +99,17 @@ namespace Plugins.EtherscanPlugin
 
                         // create a new JObject, and add the result from ethDailyPriceObj
                         JObject ethDailyPriceObjResult = new JObject();
-                        ethDailyPriceObjResult["result"] = new JArray(ethDailyPriceObj["market_data"]["current_price"]["usd"]);
+                        ethDailyPriceObjResult["result"] = new JArray(ethDailyPriceObj["market_data"]["current_price"][currency]);
 
-                        // add the ethPrice to the txListObjResult
-                        tx["ethPrice"] = ethDailyPriceObjResult["result"][0];
+                        // add the ethPriceInCurrency to the txListObjResult
+                        tx["ethPriceInCurrency"] = ethDailyPriceObjResult["result"][0];
+
+                        // update the ethAmt and currencyAmt
+                        tx["ethAmt"] = (double)tx["gas"] * ((double)tx["gasPrice"] / 1e18);
+                        tx["currencyAmt"] = (double)tx["ethAmt"] * (double)tx["ethPriceInCurrency"];
                     }
 
-                    _logger.LogInformation("txList: " + txListObjResult["result"].ToString());
+                    _logger.LogInformation("txList with currencyAmt: " + txListObjResult["result"].ToString());
                     response.WriteString(txListObjResult["result"].ToString());
 
                     return response;
