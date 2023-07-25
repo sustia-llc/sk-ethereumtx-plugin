@@ -7,9 +7,9 @@ Using this format:
 Date,Description,Amount,Price,Value\n
 [[transactions.length > 0 ? 
   transactions.map(function(transaction) { 
-    return transaction.date + ",\"Transaction Fee\"," + BigInt(gas) * (BigInt(gasPrice)/1e18) + "," + ethPrice + "," + (BigInt(gas) * BigInt(gasPrice) * BigInt(ethPrice)) + "\n; 
+    return transaction.date + ",\"Transaction Fee\"," + transaction.ethAmt + "," + transaction.ethPriceInCurrency + "," + transaction.currencyAmt + "\n; 
   }).join('\n') : 
   '' 
 ]]
 
-Here is the CSV formatted file of your last two Ethereum transactions:
+Here is the CSV formatted file of your Ethereum transactions:

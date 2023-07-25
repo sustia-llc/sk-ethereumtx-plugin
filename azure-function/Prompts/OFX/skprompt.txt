@@ -1,0 +1,63 @@
+Create an OFX formatted file from this JSON list of transactions:
+
+```json
+{{$input}}
+```
+
+Using this format:
+OFXHEADER:100\n
+DATA:OFXSGML\n
+VERSION:102\n
+SECURITY:NONE\n
+ENCODING:UTF-8\n
+CHARSET:1252\n
+COMPRESSION:NONE\n
+OLDFILEUID:NONE\n
+NEWFILEUID:NONE\n\n
+<OFX>\n
+  <SIGNONMSGSRSV1>\n
+    <SONRS>\n
+      <STATUS>\n
+        <CODE>0\n
+        <SEVERITY>INFO\n
+      </STATUS>\n
+      <DTSERVER>[[new Date().toISOString().slice(0,10).replace(/-/g,"")]]\n
+      <LANGUAGE>ENG\n
+    </SONRS>\n
+  </SIGNONMSGSRSV1>\n
+  <BANKMSGSRSV1>\n
+    <STMTTRNRS>\n
+      <TRNUID>1\n
+      <STATUS>\n
+        <CODE>0\n
+        <SEVERITY>INFO\n
+      </STATUS>\n
+      <STMTRS>\n
+        <CURDEF>USD\n
+        <BANKACCTFROM>\n
+          <BANKID>Ethereum\n
+          <ACCTID>WalletAddress\n
+          <ACCTTYPE>Cryptocurrency\n
+        </BANKACCTFROM>\n
+        <BANKTRANLIST>\n
+          <DTSTART>[[transactions.length > 0 ? transactions[transactions.length-1].date.replace(/-/g,"") : new Date().toISOString().slice(0,10).replace(/-/g,"")]]\n
+          <DTEND>[[transactions.length > 0 ? transactions[0].date.replace(/-/g,"") : new Date().toISOString().slice(0,10).replace(/-/g,"")]]\n
+          [[transactions.length > 0 ? transactions.map(function(transaction) { 
+            return "<STMTTRN>\n" +
+                   "  <TRNTYPE>OTHER\n" +
+                   "  <DTPOSTED>" + transaction.date.replace(/-/g,"") + "\n" +
+                   "  <TRNAMT>" + transaction.currencyAmt + "\n" +
+                   "  <FITID>" + transaction.blockNumber + transaction.transactionIndex + "\n" +
+                   "  <NAME>" + transaction.from + "\n" +
+                   "  <MEMO>Transaction Fee\n" +
+                   "</STMTTRN>\n"; 
+          }).join('') : 
+          '' ]]
+        </BANKTRANLIST>\n
+      </STMTRS>\n
+    </STMTTRNRS>\n
+  </BANKMSGSRSV1>\n
+</OFX>
+```
+
+Here is the OFX formatted file of your Ethereum transactions:
