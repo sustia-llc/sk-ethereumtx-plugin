@@ -4,7 +4,7 @@ This project implements a ChatGPT plugin for Ethereum. It includes the following
 - An endpoint that serves up an ai-plugin.json file for ChatGPT to discover the plugin
 - A generator that automatically converts prompts into semantic function endpoints
 - One native function that calls the Etherscan API endpoint for transaction information, and a CoinGecko API endpoint to get the historical price of Ethereum
-- Two semantic functions that formats the JSON response into CSV or OFX formats for import into accounting software
+- Two semantic functions that format the JSON response into CSV or OFX for import into accounting software
 
 
 ## Example Output
